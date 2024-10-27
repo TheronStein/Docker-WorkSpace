@@ -1,0 +1,87 @@
+
+
+
+name: theron-portfolio
+services:
+  frontend:
+    build:
+      context: frontend
+      target: development
+    ports:
+      - 3000:3000
+    volumes:
+        # - ./app:/srv/dev/src/app
+        # - /srv/dev/src/node_modules  # Optional, ensures faster dev cycles
+      - ./frontend/src:/code/src
+      - /code/node_modules
+    networks:
+      - client-side
+    depends_on:
+
+  backend:
+    build:
+      args:
+      - NODE_ENV=development
+      context: backend
+      target: development
+    command: npm run start-watch
+    environment:
+      - ADDRESS=0.0.0.0:8000
+      - PG_DBNAME=coredb
+      - PG_HOST=db
+      - PG_USER=coredb
+      - POSTGRES_PASSWORD=db-password
+    ports:
+      - 80:80
+      - 9229:9229
+      - 9230:9230
+    volumes:
+      - ./backend/src:/code/src:ro
+      - ./backend/package.json:/code/package.json
+      - ./backend/package-lock.json:/code/package-lock.json
+      - back-notused:/opt/app/node_modules
+      - backend-cache:/code/target
+    networks:
+      - client-side
+      - server-side
+    depends_on:
+      db:
+        condition: service_healthy
+  
+  db:
+    image: postgres:latest
+    restart: always
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=coredb
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db.env
+    ports:
+      - 5432:5432
+
+
+
+  proxy:
+    image: nginx
+    volumes:
+      - type: bind
+        source: ./proxy/nginx.conf
+        target: /etc/nginx/conf.d/default.conf
+        read_only: true
+    ports:
+      - 80:80
+    depends_on: 
+      - backend
+
+networks:
+  client-side: {}
+  server-side: {}
+
+volumes:
+  backend-cache: {}
+  db-data: {}
+secrets:
+  db-password:
+    file: db/password.txt

@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+// npx prisma migrate dev --name <migration_name>
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgres"
+  url               = env("DATABASE_PRISMA_URL")
+  directUrl         = env("DATABASE_URL_NON_POOLING")
+  shadowDatabaseUrl = env("DATABASE_URL_NON_POOLING")
+}
+
+model User {
+  id    Int @id @default(cuid())
+  email  String
+  emailVerified DateTime? @map(name: "email_verified")
+  password UserPassword
+
+  roles Role[]
+  profile Profile?
+  player Player?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([id])
+  @@unique([email, password, id])
+
+  @@map("users")
+}
+
+enum UserRole {
+  Admin
+  Mod
+  Captain
+  Player
+  User
+  Guest
+}
+
+
+model UserPassword {
+  id  Int @id @default(cuid())
+  hash String
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Role{
+  id String @id @default(cuid())
+  name String @unique
+  description String @db.Text
+  color String // #000000
+  sequence Int? @unique // 1 | 2 | 3 | ...
+  permissions Permission[]
+  userId String @unique
+  users User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([id, name, description, color, permissions])
+  @@map("roles")
+}
+
+model Permission {
+  id String @id @default(cuid())
+  name String @unique
+  description String? @db.Text
+  sequence Int? @unique // 1 | 2 | 3 | ...
+
+  role Role @relation(fields: [roleId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  roles Role[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([id, name, description])
+  @@map("permissions")
+}
+
+model Profile {
+  id String @id @default(cuid())
+  image String
+  clan String
+  bio String
+
+
+  userId String @unique
+  user User @relation(fields: [userId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  player Player?
+  ctfELO Int
+  duelELO Int
+  matches Match[] @relation("Player")
+  leagueMatches leagueMatches[] @relation("Player")
+
+  posts UserComments[]
+  articles Article[]
+  polls Poll[]
+  votes Vote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  profileViews Int @default(0)
+}
+
+
+
+
+
+
+

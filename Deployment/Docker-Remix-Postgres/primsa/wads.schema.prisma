@@ -1,0 +1,118 @@
+model Author {
+  id String @id @default(cuid())
+  name String @unique
+
+  wads Wad[]
+  maps Map[]
+
+  userId Int
+  user User? @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  profile Profile? @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  player Player? @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model Wad {
+  id String @id @default(cuid())
+  name String @unique
+  type String
+  authorId Int[]
+  author Author[] @relation(fields: [authorId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  description String @db.Text
+  url String @unique
+
+  seasonId Int[]
+  seasons Season[] @relation(fields: [seasonId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  uploadedAt DateTime @default(now())
+}
+
+model CompiledWad {
+  id String @id @default(cuid())
+  authorId Int[]
+  authors Author[] @relation(fields: [authorId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  wadId Int[]
+  wads Wad[] @relation(fields: [wadId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  mapId Int[]
+  maps Map[] @relation(fields: [mapId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  seasonId Int[]
+  seasons Season[] @relation(fields: [seasonId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model WadStats {
+  id String @id @default(cuid())
+  name String @unique
+
+  compiledId Int[]
+  compiliations CompiledWad[]
+
+  mapsPlayed Int
+  mapsList Map[]
+
+  numHomefield Int
+  gamesPlayed Int
+  gamesList Game[]
+
+  roundsPlayed Int
+  timePlayed Int
+  points Int
+  caps Int
+  pcaps Int
+  assists Int
+  touches Int
+  ptouches Int
+  frags Int
+  Deaths Int
+
+  regSeasonTimes Int
+  playoffTimes Int
+  championshipTimes Int
+}
+
+model Map {
+  id Int @id @default(cuid())
+  name String @unique
+  wadId Int
+  wadName String
+  wad Wad @relation(fields: [wadId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  images MapImage[]
+  mapStats MapStats[]
+}
+
+model MapStats {
+  mapId Int
+  map Map @relation(fields: [mapId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  compiledId Int[]
+  compiliations CompiledWad[]
+
+  numHomefield Int
+  gamesPlayedIn Game[]
+  seasonsPlayedIn Season[]
+  regSeasonTimes Int
+  playoffTimes Int
+  championshipTimes Int
+
+  roundsPlayed Int
+  timePlayed Int
+  points Int
+  caps Int
+  pcaps Int
+  assists Int
+  touches Int
+  ptouches Int
+  frags Int
+  Deaths Int
+}
+
+model MapImage {
+  id String @id @default(cuid())
+  url String @unique
+  height Int
+  width Int
+  wadId String
+  mapId String
+  map Map @relation(fields: [mapId], [wadId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

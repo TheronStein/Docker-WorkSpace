@@ -1,0 +1,39 @@
+model Match {
+  id String @id @default(cuid())
+  Date DateTime @default(now())
+  type String
+  wadId String
+  wad Wad @relation(fields: [wadId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  mapId String
+  map Map @relation(fields: [mapId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  playerIDs String[] @db.ObjectId
+  players Player[] @relation(fields: [playerIDs], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+
+
+model PrivMatch {
+  id String @id @default(cuid())
+  typeId String
+  match Match @relation(fields: [typeId], references: [type], onUpdate: Cascade, onDelete: Cascade)
+  players MatchPlayers[]
+}
+
+model DuelMatch {
+  id String @id @default(cuid())
+  player1Id String
+  player1 User @relation(fields: [player1Id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  player2Id String
+  player2 User @relation(fields: [player2Id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  mapId String
+  map Map @relation(fields: [mapId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// model MatchPlayers{
+//   match Match @relation(fields: [matchId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+//   matchId String
+//   player player @relation(fields: [playerId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+//   playerId String
+// }

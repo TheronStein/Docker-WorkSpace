@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      target: dev-env  # Use development stage
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://coredb:db-password@db:5432/coredb"
+    volumes:
+      - .:/app  # Mount source code
+      - /app/node_modules
+    depends_on:
+      - db
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: coredb
+      POSTGRES_PASSWORD: db-password
+      POSTGRES_DB: coredb
+    volumes:
+      - db-data:/hdd/srv/src/db/postgresql/data
+    ports:
+      - "5432:5432"
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  db-data:
+
+secrets:
+  db-password:
+    file: .env

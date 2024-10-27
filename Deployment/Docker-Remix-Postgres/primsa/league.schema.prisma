@@ -1,0 +1,251 @@
+model League {
+  id String @id @default(cuid())
+  name String @unique
+  type String
+  typeId Int
+  color String @unique
+  redemption RedemptionLeague
+  rivals RivalsLeague
+}
+
+model RedemptionLeague {
+  id String @id @default(cuid())
+  name String @unique
+  type String
+  typeId Int
+  color String @unique
+  leagueSeasons LeagueSeason[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Captain {
+  id Int @id @default(cuid())
+  playerId Int
+  player Player @relation(fields: [playerId], references: [id])
+  teamId Int
+  team SeasonTeam @relation(fields: [teamId], references: [id])
+  seasonId Int
+  season LeagueSeason @relation(fields: [seasonId], references: [id])
+}
+
+model Player {
+  id Int @id @default(cuid())
+  name String @unique
+
+  userId Int
+  user User? @relation(fields: [userId], references: [id])
+  profile Profile? @relation(fields: [userId], references: [id])
+
+  matchId Int[]
+  matches Match[] @relation(fields: [matchId], references: [id])
+  seasonId Int[]
+  seasonMatch SeasonMatch[] @relation(fields: [seasonId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@unique([id, name])
+}
+
+model LeagueSeason {
+  id String @id @default(cuid())
+  name String @unique
+  type String
+  typeId String
+  startDate DateTime
+  endDate DateTime
+
+  teams SeasonTeam[]
+  captains Captain[] @relation(fields: [id] references: [id], onUpdate: Cascade, onDelete: Cascade)
+  players Player[] @relation(fields: [id] references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SeasonTeam {
+  id String @id @default(cuid())
+  name String
+  abbreviation String
+  homeField String
+  wins Int
+  losses Int
+  trades String[]
+  roster String[]
+
+  captainId String
+  captain Captain @relation(fields: [captainId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  playerId String[]
+  players Player[] @relation(fields: [playerId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  seasonId String
+  season LeagueSeason @relation(fields: [seasonId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  matchesPlayed LeagueMatch[] @relation(fields: [id] references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model SeasonDraft {
+  id String @id @default(cuid())
+  seasonId String
+  season LeagueSeason @relation(fields: [seasonId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  teamId String
+  team SeasonTeam[] @relation(fields: [teamId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  numTeams Int
+  numPicks Int
+  numRounds Int
+  numPlayers Int
+}
+
+model SeasonTeamDraft {
+  id String @id @default(cuid())
+  
+  seasonId String
+  season LeagueSeason @relation(fields: [seasonId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  teamId String
+  team SeasonTeam @relation(fields: [teamId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  firstPickId Int
+  firstPick Player @relation(fields: [firstPickId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+  secondPick Int
+  secondPick Player @relation(fields: [secondPickId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+  thirdPick Int
+  thirdPick Player @relation(fields: [thirdPickId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model SeasonMatch {
+  id String @id @default(cuid())
+  datePlayed DateTime
+  type String
+
+  location String //server
+  mapName String
+  mapNum Int
+
+  winner String
+  roundNum Int
+  gameLength Int
+
+  blueTeamId String
+  blueTeam SeasonTeam @relation(fields: [blueTeamId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+  blueName String blueTeam.name
+  blueAbbr String blueTeam.abbreviation
+  redTeamId String
+  redTeam SeasonTeam @relation(fields: [redTeamId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+  redName String  RedTeam.name
+  redAbbr String redTeam.abbreviation
+
+  //blueScore Int LeagueMatchStats.blueScore
+  //redScore Int LeagueMatchStats.redScore
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SeasonMatchStats {
+  id String @id @default(cuid())
+
+  matchId String
+  match LeagueMatch @relation(fields: [matchId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  teamId String
+  team LeagueTeam @relation(fields: [teamId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  points Int
+  caps Int
+  pcaps Int
+  assists Int
+  touches Int
+  ptouches Int
+  frags Intger
+  deaths Int
+  kd Float
+  damage Int
+  powerups Int
+
+  roundsPlayed Int
+
+  round1Id Int
+  round1Score Int? @relation(fields: [round1Id] references: [id], onUpdate: Cascade, onDelete: Cascade)
+  round2Id Int
+  round2Score Int? @relation(fields: [round2Id] references: [id], onUpdate: Cascade, onDelete: Cascade)
+  round3Id Int
+  round3Score Int? @relation(fields: [round3Id] references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model SeasonRoundStats {
+  id String @id @default(cuid())
+
+  matchId String
+  match LeagueMatch @relation(fields: [matchId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  teamId String
+  team LeagueTeam @relation(fields: [teamId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  roundNum Int
+  points Int
+  caps Int
+  pcaps Int
+  assists Int
+  touches Int
+  ptouches Int
+  frags Intger
+  deaths Int
+  kd Float
+  damage Int
+  powerups Int
+
+
+
+  accuracy Float
+  damagePerMin Float
+  damagePerRound Float
+  damagePerDeath Float
+
+  killsChainsaw Int
+  killsFist Int
+  killsPistol Int
+  killsShotgun Int
+  killsChaingun Int
+  killsRocketLauncher Int
+  killsPlasmaGun Int
+  killsBFG Int
+
+}
+
+model LeagueDraft {
+  id Int @id @default(cuid())
+  pickNumber Int
+  pickerId Int
+  pickedId Int
+
+  seasonId Int
+  season LeagueSeason @relation(fields: [seasonId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+  captainId Int
+  captains Captain[] @relation(fields: [captainId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+  playerId Int
+  players Player[] @relation(fields: [playerId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model LeagueTrades {
+  id Int @id @default(cuid())
+  team1Id Int
+  team1 SeasonTeam @relation(fields: [team1Id] references: [id], onUpdate: Cascade, onDelete: Cascade)
+  team1Player Player @relation(fields: [team1Id], [playerId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+  team2Id Int
+  team2 SeasonTeam @relation(fields: [team2Id] references: [id], onUpdate: Cascade, onDelete: Cascade)
+  team2Player Player @relation(fields: [team1Id], [playerId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+  freeAgency Boolean @default(false)
+}
+
+model FreeAgency {
+  id Int @id @default(cuid())
+  seasonId Int
+  season LeagueSeason @relation(fields: [seasonId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+  playerId Int
+  player Player[] @relation(fields: [playerId] references: [id], onUpdate: Cascade, onDelete: Cascade)
+}

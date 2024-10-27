@@ -1,0 +1,75 @@
+html {
+    background-color: black;
+    height: 100%;
+    width: 100%; 
+}
+
+body{
+    height:100%;
+    width:100%;
+    background:
+    linear-gradient(to right, transparent 35%, black 100%) 0 0 fixed, 
+    linear-gradient(to left, transparent 35%, black 100%) 0 0 fixed, 
+    linear-gradient(to bottom, transparent 50%, black 100%) 0 0 fixed,   
+    black url("/assets/images/background-teaser.jpg") no-repeat fixed center;
+    background-size: cover;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+}
+
+.logoContainer
+{
+    display:flex;
+}
+
+.banner
+{
+    left:30%;
+    position:fixed;
+    width:40%;
+}
+
+#logoContainer {
+    display: block;
+    width: 500px;
+    height: 40%;
+}
+
+.pageHeader
+{
+    display:block;
+    padding-top:18%;
+    padding-left:5%;
+}
+
+.soon
+{
+    width:500px;
+    height:100px;
+}
+
+.links
+{
+    padding-top:3%;
+
+}
+
+.links ul li
+{
+    padding-top:20px;
+}
+
+h1 {
+    font-size: 100px;
+    font-size-adjust: 0.58;
+    margin-bottom: 20px;
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+
+p {
+    color: white;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
